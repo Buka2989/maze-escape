@@ -19,8 +19,60 @@ public class Zones {
      * Is DAG in Main is 1 when the number of zones equals the number of cells (no cycle), so you do not need a separate check.
      */
     public static int[] kosaraju(Input.Slides s) {
-        // TODO
-        return new int[s.n()];
+        int n = s.n();
+        int[][] outgoing = Graphs.slidesFrom(s);
+        boolean[] seen = new boolean[n];
+        int[] finished = new int[n];
+        int[] stack = new int[n];
+        int[] nextEdge = new int[n];
+        int finishCount = 0;
+
+        for (int start = 0; start < n; start++) {
+            if (seen[start]) continue;
+            int top = 0;
+            stack[0] = start;
+            nextEdge[0] = 0;
+            seen[start] = true;
+            while (top >= 0) {
+                int cell = stack[top];
+                if (nextEdge[top] == outgoing[cell].length) {
+                    finished[finishCount++] = cell;
+                    top--;
+                    continue;
+                }
+                int slide = outgoing[cell][nextEdge[top]++];
+                int neighbour = s.to()[slide];
+                if (!seen[neighbour]) {
+                    seen[neighbour] = true;
+                    stack[++top] = neighbour;
+                    nextEdge[top] = 0;
+                }
+            }
+        }
+
+        int[][] incoming = Graphs.slidesInto(s);
+        int[] zoneOf = new int[n];
+        java.util.Arrays.fill(zoneOf, -1);
+        int zone = 0;
+        for (int i = finishCount - 1; i >= 0; i--) {
+            int start = finished[i];
+            if (zoneOf[start] != -1) continue;
+            int top = 0;
+            stack[0] = start;
+            zoneOf[start] = zone;
+            while (top >= 0) {
+                int cell = stack[top--];
+                for (int slide : incoming[cell]) {
+                    int neighbour = s.from()[slide];
+                    if (zoneOf[neighbour] == -1) {
+                        zoneOf[neighbour] = zone;
+                        stack[++top] = neighbour;
+                    }
+                }
+            }
+            zone++;
+        }
+        return zoneOf;
     }
 
     /**
