@@ -1,29 +1,30 @@
 # Assignment 3. Maze Escape
 
-Student ID:
-Name:
-Group:
-Maze size (rows x columns):
+- Student ID: 250780
+- Name: Muratkhanov Bauyrzhan
+- Group: SE-2519
+- Maze size (rows x columns): 8 x 10
 
-This file is the report. Fill it in as you go. How to start: `START_HERE.md`. The task: `docs/Assignment3.pdf`.
+I generated my input files with `java tools/MakeVariant.java 250780 data`.
+My maze has 80 cells, 142 inner walls and 109 one-way slides.
 
 ## Program output
 
-The 13 lines your program prints on your data (`java -cp out Main`):
+I obtained these 13 lines with `java -cp out Main`:
 
-    Broken:
-    Kept:
-    Last broken wall:
-    MST cost:
-    Heaviest broken wall:
-    Path length:
-    DFS visited:
-    Dead ends:
-    Zones:
-    Largest zone:
-    Is DAG:
-    Flow stages:
-    Fastest route cost:
+    Broken: 79
+    Kept: 63
+    Last broken wall: 90
+    MST cost: 24566
+    Heaviest broken wall: 969
+    Path length: 16
+    DFS visited: 42
+    Dead ends: 27
+    Zones: 10
+    Largest zone: 12
+    Is DAG: 0
+    Flow stages: 7
+    Fastest route cost: 20
 
 My maze:
 
@@ -31,23 +32,23 @@ My maze:
 
 ## Questions
 
-Answer in your own words, two or three sentences each.
+These are my draft answers. I will review and rewrite them in my own words before submission.
 
-Mission 0. What do find and union do, and what makes them fast in your code?
+Mission 0. `find` returns the root of the set containing a cell, while `union` joins two different sets and reports whether a join happened. I use path compression in `find` and attach the smaller set below the larger one in `union`, so a sequence of operations is fast.
 
-Mission 1. Why is Broken always R*C - 1, and Kept always (R-1)*(C-1)?
+Mission 1. I break a wall only when it connects two previously separate groups of cells. The resulting connected maze has no cycles, so it is a tree with exactly `R*C - 1` broken walls. The grid starts with `R*(C-1) + C*(R-1)` inner walls; subtracting the broken walls leaves `(R-1)*(C-1)`.
 
-Mission 2. My MST cost from Kruskal and from Prim, and why they are equal:
+Mission 2. On my input, Kruskal and Prim both give an MST cost of **24566**. Both algorithms build a minimum spanning tree, although they choose edges in different ways; the distinct wall costs also make the minimum spanning tree unique.
 
-Mission 3. Why is there exactly one path between two cells? How did you avoid a stack overflow on a huge maze?
+Mission 3. There is exactly one path between any two cells because the open doors form a tree: a second path would create a cycle. I used an explicit stack for DFS instead of recursive calls, so even a very long path does not consume the Java call stack. I count a cell when DFS first marks it and stop the count as soon as it marks the exit.
 
-Mission 4. Why does the second pass of Kosaraju go on the reversed graph? Why do the slides have no cycle exactly when Zones equals the number of cells?
+Mission 4. In the second pass of Kosaraju, I follow reversed slides in decreasing order of the first pass's finish times; this collects the cells of each strongly connected zone. A directed cycle puts at least two cells in one zone, while a graph without cycles leaves every cell in its own zone. Because the input has no slide from a cell to itself, `Zones == number of cells` is equivalent to `Is DAG == 1`.
 
-Mission 5. Why is it enough to go through the zones in the order of their numbers? What does this pass cost?
+Mission 5. The second pass numbers zones in topological order, so every slide between different zones goes from a smaller number to a larger one. I process zones in that order to update the longest chain and the cheapest route; moving within a zone is free, and repeated transitions keep the cheapest cost. This pass takes `O(z + s)` time for `z` zones and `s` slides.
 
 ## AI use
 
-The syllabus requires you to say which AI tools you used and for what. Write the tool (ChatGPT, Copilot, other) and what you asked it: explain an idea, find an error, review code. Write "none" if you did not use any. If you took code or text from a book or a website, give the source here.
+I used ChatGPT to discuss the theory behind the algorithms and to help write and review the Java implementation. I checked the results against the three supplied examples and additional tests.
 
 ## Timing (Mission 7)
 
