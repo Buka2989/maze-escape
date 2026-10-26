@@ -30,6 +30,8 @@ My maze:
 
 ![maze](output/maze.png)
 
+I can also open [the interactive maze](output/maze.html) to inspect walls, the path, zones and slides.
+
 ## Questions
 
 These are my draft answers. I will review and rewrite them in my own words before submission.
@@ -52,33 +54,40 @@ I used ChatGPT to discuss the theory behind the algorithms and to help write and
 
 ## Timing (Mission 7)
 
-Milliseconds, 5 runs each, from `java -cp out Bench`.
+I ran the supplied `Bench` with Java 27. Each cell shows the average in milliseconds,
+followed by the five measured runs in parentheses.
 
-| maze | Kruskal | Prim |
-|---|---|---|
-| 100 x 100 | | |
-| 300 x 300 | | |
-| 1000 x 1000 | | |
+| maze | Kruskal, ms | Prim, ms |
+|---|---:|---:|
+| 100 x 100 | 5 (12, 5, 4, 2, 2) | 7 (14, 6, 4, 4, 6) |
+| 300 x 300 | 15 (25, 13, 12, 12, 13) | 57 (69, 59, 47, 53, 57) |
+| 1000 x 1000 | 269 (241, 231, 291, 300, 282) | 1341 (1182, 1252, 1474, 1377, 1418) |
 
-What do the numbers say about how the time grows? Two or three sentences.
+The larger grids have many more walls, so sorting them in Kruskal and handling them
+in Prim's priority queue take more time. The 100 x 100 measurements are especially
+sensitive to JVM warm-up; memory allocation and other runtime effects also influence
+the measured ratios. These numbers describe my runs on this computer, not fixed
+execution times.
 
 ## Complexity
 
-n is the number of cells, m the number of walls (or slides). Fill in every algorithm you wrote.
+Here `n` is the number of cells, `m` the number of walls, `s` the number of slides,
+and `z` the number of zones. Space means additional memory used by the algorithm,
+including its result but excluding the input arrays.
 
 | algorithm | time | space | assumptions |
 |---|---|---|---|
-| DSU find and union | | | |
-| Kruskal | | | |
-| Prim | | | |
-| DFS | | | |
-| Kosaraju | | | |
-| Route in the zone graph | | | |
+| DSU `find` and `union` | `O(α(n))` amortized per operation | `O(n)` | Initialization takes `O(n)`; union by size and path compression are used. |
+| Kruskal | `O(m log m + m α(n))` | `O(m + n)` | Walls are sorted by cost; DSU checks which ones join components. |
+| Prim | `O(m log m)` | `O(m + n)` | Adjacency lists and a priority queue hold candidate walls. |
+| DFS | `O(n + m)` | `O(n + m)` | The open maze is built from broken walls; each cell and door is examined a constant number of times. |
+| Kosaraju | `O(n + s)` | `O(n + s)` | Both DFS passes use arrays as stacks; slide lists are built for both directions. |
+| Route in the zone graph | `O(z + s)` | `O(z + s)` | Zone numbers are topological; each inter-zone slide is relaxed once. |
 
-## Before you submit
+## Before submitting
 
-- data/walls.txt, data/slides.txt and output/maze.png are in the repository.
-- `java tools/Check.java` shows all examples right.
-- This README is filled in, the program output and the section AI use included.
-- The work is pushed to main (at least one commit per mission) and the repository is public.
-- The link is attached in Moodle.
+I ran `java tools/Check.java`: all 13 lines matched on each of the three supplied
+examples, and the DSU checks passed. I also ran `EscapeTest` and `ZonesTest` for
+large inputs and additional edge cases. Before submission, I will rewrite the
+draft answers in my own words, check public access to the repository, and submit
+its link in Moodle myself.
