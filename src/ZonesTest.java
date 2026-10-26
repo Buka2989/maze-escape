@@ -29,6 +29,23 @@ public class ZonesTest {
             if (chain[i] != i) correct = false;
         }
         check(correct, "200,000-cell chain is numbered without recursion");
+
+        Input.Slides priced = new Input.Slides(5,
+                new int[]{0, 1, 0, 1, 2, 0, 3},
+                new int[]{1, 0, 2, 2, 4, 3, 4},
+                new int[]{5, 2, 10, 3, 4, 1, 100});
+        int[] pricedZones = Zones.kosaraju(priced);
+        long[] result = Zones.routes(priced, pricedZones, 4);
+        check(result[0] == 3, "longest chain counts zones, not slides");
+        check(result[1] == 7, "internal travel is free and cheapest parallel slide wins");
+
+        Input.Slides separateChain = new Input.Slides(6,
+                new int[]{0, 1, 2, 3}, new int[]{5, 2, 3, 4},
+                new int[]{2, 1, 1, 1});
+        int[] separateZones = Zones.kosaraju(separateChain);
+        long[] separate = Zones.routes(separateChain, separateZones, 6);
+        check(separate[0] == 4 && separate[1] == 2,
+                "flow stages include chains outside the start-to-exit route");
         System.out.println("All Zones checks passed.");
     }
 

@@ -82,7 +82,38 @@ public class Zones {
      * [1] the cost of the cheapest route from the zone of cell 0 to the zone of the last cell.
      */
     public static long[] routes(Input.Slides s, int[] zoneOf, int zoneCount) {
-        // TODO
-        return new long[]{0, 0};
+        if (zoneCount == 0) return new long[]{0, 0};
+
+        int[] head = new int[zoneCount];
+        java.util.Arrays.fill(head, -1);
+        int[] next = new int[s.count()];
+        for (int slide = 0; slide < s.count(); slide++) {
+            int from = zoneOf[s.from()[slide]], to = zoneOf[s.to()[slide]];
+            if (from == to) continue;
+            next[slide] = head[from];
+            head[from] = slide;
+        }
+
+        int[] stages = new int[zoneCount];
+        java.util.Arrays.fill(stages, 1);
+        long infinity = Long.MAX_VALUE / 4;
+        long[] distance = new long[zoneCount];
+        java.util.Arrays.fill(distance, infinity);
+        distance[zoneOf[0]] = 0;
+
+        for (int zone = 0; zone < zoneCount; zone++) {
+            for (int slide = head[zone]; slide != -1; slide = next[slide]) {
+                int to = zoneOf[s.to()[slide]];
+                stages[to] = Math.max(stages[to], stages[zone] + 1);
+                if (distance[zone] != infinity) {
+                    // Parallel slides are relaxed separately, leaving their minimum cost.
+                    distance[to] = Math.min(distance[to], distance[zone] + s.time()[slide]);
+                }
+            }
+        }
+
+        int longest = 0;
+        for (int stage : stages) longest = Math.max(longest, stage);
+        return new long[]{longest, distance[zoneOf[s.n() - 1]]};
     }
 }
