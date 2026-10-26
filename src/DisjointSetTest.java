@@ -24,7 +24,29 @@ public class DisjointSetTest {
         check(d.count() == 3, "3 sets: {0,1,2,3} {4} {5}");
         check(d.find(4) == 4 && d.find(5) == 5, "a single cell is its own root");
 
-        // TODO: add your own checks here
+        check(!d.union(0, 0) && d.count() == 3, "self-union changes nothing");
+
+        DisjointSet sizes = new DisjointSet(7);
+        sizes.union(0, 1);
+        sizes.union(2, 3);
+        sizes.union(2, 4);
+        sizes.union(0, 2);
+        check(sizes.find(0) == sizes.find(2) && sizes.find(0) == sizes.find(4),
+                "the smaller set joins the larger set");
+        check(sizes.find(0) == 2, "the larger set keeps its root");
+        check(sizes.count() == 3 && !sizes.connected(0, 5),
+                "untouched cells stay separate");
+
+        DisjointSet large = new DisjointSet(100_000);
+        boolean allJoined = true;
+        for (int i = 1; i < 100_000; i++) allJoined &= large.union(i - 1, i);
+        check(allJoined && large.count() == 1, "large chain has one set after 99,999 unions");
+        check(large.connected(0, 99_999) && large.find(99_999) == large.find(0),
+                "find reaches the root on a large input");
+        check(!large.union(99_999, 0) && large.count() == 1,
+                "repeated union does not reduce the set count");
+
+        check(new DisjointSet(0).count() == 0, "empty DSU has no sets");
 
         System.out.println(failed == 0 ? "All checks passed." : failed + " checks failed.");
     }
